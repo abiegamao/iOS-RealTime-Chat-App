@@ -138,8 +138,7 @@ class MessagesViewController: UITableViewController {
                 self.showChatController(user: user)
             
         }, withCancel: nil)
-        
-        
+    
         //showChatController(user: <#T##User#>)
     }
     
