@@ -128,10 +128,77 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        print("we selected an image")
+        
+        //When Video is selected
+        if let videoUrl = info[UIImagePickerControllerMediaURL] as? URL{
+            print("Here's the link of the url \(videoUrl)")
+            handleVideoSelected(url: videoUrl)
+        }else{
+            handleImageSelected(info: info)
+        }
+        dismiss(animated: true, completion: nil)
+    }
+    
+    private func handleVideoSelected(url: URL){
+        let fileName = UUID().uuidString + ".mov" // generate new file name
+        let uploadTask = FIRStorage.storage().reference().child("message_videos").child(fileName).putFile(url, metadata: nil, completion: { (metadata, error) in
+            
+            if error != nil{
+                print("Error uploading data", error!)
+                return
+            }
+            
+            if let videoUrl = metadata?.downloadURL()?.absoluteString{
+               // print(storageUrl)
+                if let thumbnailImage = self.thumbnailImageForFileUrl(url: url){
+                    // missing: image URL
+                    self.uploadToFirebaseStorage(image: thumbnailImage, completion: { (imageUrl) in
+                        let properties = ["imageUrl": imageUrl as AnyObject, "imageWidth": thumbnailImage.size.width as AnyObject, "imageHeight": thumbnailImage.size.height as AnyObject, "videoUrl": videoUrl as AnyObject ]
+                        self.sendMessageWithProperties(properties: properties)
+                    })
+
+                }
+
+            }
+        })
+        // Progress
+        uploadTask.observe(.progress) { (snapshot) in
+            if let computedUnitCount = snapshot.progress?.completedUnitCount{
+                self.navigationItem.title = String(computedUnitCount)
+            }
+        }
+        
+        uploadTask.observe(.success) { (snapshot) in
+            self.navigationItem.title = self.user?.name
+        }
+    }
+    
+    // --- For Videos
+    func sendMessageWithVideoUrl(imageUrl: String, image: UIImage) {
+       // let thumbnailImage = self.thumbnailImageForFileUrl(url: imageUrl)
+
+
+        
+    }
+    
+    func thumbnailImageForFileUrl(url: URL) -> UIImage? {
+        let asset = AVAsset(url: url)
+        let imageGenerator = AVAssetImageGenerator(asset: asset)
+        do {
+            let cgImage = try imageGenerator.copyCGImage(at: CMTimeMake(1, 60) , actualTime: nil)
+            return UIImage(cgImage: cgImage)
+        }catch let err{
+            print(err)
+        }
+        
+        
+        return nil
+    }
+    
+    
+    private func handleImageSelected(info: [String: Any]){
+        // We selected an image        
         var selectedImageFromPicker: UIImage?
-        
-        
         if let editedImage = info["UIImagePickerControllerEditedImage"] as? UIImage{
             selectedImageFromPicker = editedImage
         }else if let originalImage = info["UIImagePickerControllerOriginalImage"] as? UIImage {
@@ -140,16 +207,16 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         
         print(selectedImageFromPicker?.size ?? "")
         if let selectedImage = selectedImageFromPicker {
-//            profileImageView.contentMode = .scaleAspectFill
-  //          profileImageView.image = selectedImage
-            uploadToFirebaseStorage(image: selectedImage)
+            uploadToFirebaseStorage(image: selectedImage, completion: { (url) in
+                self.sendMessageWithImageUrl(imageUrl: url, image: selectedImage)
+            })
+            
         }
-        
-        dismiss(animated: true, completion: nil)
-
     }
     
-    func uploadToFirebaseStorage(image: UIImage) {
+    
+    
+    func uploadToFirebaseStorage(image: UIImage, completion: @escaping (_ imageUrl: String) -> ()) {
         print("Upload to firebase")
 
         let imageName = UUID().uuidString
@@ -157,16 +224,15 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         
         if let uploadData = UIImageJPEGRepresentation(image, 0.2){
             ref.put(uploadData, metadata: nil, completion: { (metadata, error) in
-                if error != nil{
+                if error   != nil{
                     print("Error uploading: \(error)")
                     return
                 }
                 
                 if let imageUrl = metadata?.downloadURL()?.absoluteString{
-                    
-                    self.sendMessageWithImageUrl(imageUrl: imageUrl, image: image)
+                    completion(imageUrl)
                 }
-                print(metadata?.downloadURL()?.absoluteString as Any)
+               // print(metadata?.downloadURL()?.absoluteString as Any)
             })
         }
         
@@ -186,6 +252,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         self.sendMessageWithProperties(properties: properties)
     }
     
+
     func sendMessageWithProperties(properties: [String: AnyObject]) {
         let ref = FIRDatabase.database().reference().child("messages")
         let childRef = ref.childByAutoId()
