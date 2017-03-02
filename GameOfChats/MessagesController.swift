@@ -28,7 +28,37 @@ class MessagesViewController: UITableViewController {
         tableView.register(UserCell.self, forCellReuseIdentifier: cellID)
        // observeMessages()
        // observeUserMessages()
+       //Enable delete
+       tableView.allowsMultipleSelectionDuringEditing = true
     }
+    
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    // Actions for delete in every row
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        print(indexPath.row)
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
+            return //if error
+        }
+        let message = messages[indexPath.row]
+        if let chatPartnerId = message.chatPartnerId(){
+            // Storage - user-message - current user's node - chat partner's node - delete
+            FIRDatabase.database().reference().child("user-messages").child(uid).child(chatPartnerId).removeValue(completionBlock: { (err, ref) in
+                if err != nil{
+                    print("Unable to delete", err)
+                    return
+                }
+                
+                self.messagesDictionary.removeValue(forKey: chatPartnerId)
+                self.attemptReloadOfTable() //reload data
+                //self.messages.remove(at: indexPath.row)
+                //self.tableView.deleteRows(at: [indexPath], with: .automatic)
+            })
+        }
+    }
+    
+    
     
     func observeUserMessages() {
         
@@ -43,11 +73,18 @@ class MessagesViewController: UITableViewController {
           let userId = snapshot.key // got from there ^^ messages exclusive to current user
             
           // ep 16
-          FIRDatabase.database().reference().child("user-messages").child(uid).child(userId).observe(.childAdded, with: { (snapshot) in
+          ref.child(userId).observe(.childAdded, with: { (snapshot) in
             print(snapshot)
             let messageId = snapshot.key
             self.fetchMessageWith(messageId: messageId)
           }, withCancel: nil)
+        }, withCancel: nil)
+        
+        // When a message thread is deleted outside the app
+        ref.observe(.childRemoved, with: { (snapshot) in
+            print(snapshot.key)
+            self.messagesDictionary.removeValue(forKey: snapshot.key)
+            self.attemptReloadOfTable()
         }, withCancel: nil)
         
         
@@ -90,8 +127,6 @@ class MessagesViewController: UITableViewController {
     var timer: Timer?
     
     func handleReloadTable(){
-        //this will crash because of background Thread
-        
         //this will crash because of background thread, so lets call this on dispatch_async main thread
         DispatchQueue.main.async(execute: {
            // print("reload")
