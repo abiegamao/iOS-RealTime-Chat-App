@@ -428,6 +428,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         
         let message = messages[indexPath.item]
         cell.textView.text = message.text
+        cell.message = message
         
         setUpCell(message: message, cell: cell)
         
@@ -439,6 +440,8 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
             cell.bubbleWidthAnchor?.constant = 200
             cell.textView.isHidden = true
         }
+        // Play button only appears on videos
+        cell.playButton.isHidden = message.videoUrl == nil
 
         return cell
     }
