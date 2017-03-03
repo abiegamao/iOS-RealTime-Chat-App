@@ -120,8 +120,10 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         })
         // Progress
         uploadTask.observe(.progress) { (snapshot) in
-            if let computedUnitCount = snapshot.progress?.completedUnitCount{
-                self.navigationItem.title = String(computedUnitCount)
+            if let computedUnitCount = snapshot.progress?.completedUnitCount,
+                let totalUnitCount = snapshot.progress?.totalUnitCount{
+                let uploadPercentage: Float64 = Float64(computedUnitCount) * 100 / Float64(totalUnitCount)
+                self.navigationItem.title = String(format: "%.0F", uploadPercentage) + "%"
             }
         }
         uploadTask.observe(.success) { (snapshot) in
