@@ -64,13 +64,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         
     } 
     
-    lazy var inputTextField : UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Enter Message"
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.delegate = self
-        return textField
-    }()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -81,7 +75,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
 /*
         collectionView?.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
         */
-
+        
         collectionView?.alwaysBounceVertical = true // draggable vertically
         collectionView?.backgroundColor = UIColor.white
         collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: cellID)
@@ -241,7 +235,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
     
     // --- For Text
     func handleSend(){
-         let properties = ["text":inputTextField.text! as AnyObject]
+         let properties = ["text":inputContainerView.inputTextField.text! as AnyObject]
          self.sendMessageWithProperties(properties: properties)
     }
     
@@ -273,7 +267,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
                 return
             }
             
-            self.inputTextField.text = nil
+            self.inputContainerView.inputTextField.text = nil
             
             //ep 16 fix - optimize chat log
             //success update // SENT-MESSAGES
@@ -292,62 +286,10 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
     
 
 
-    lazy var inputContainerView: UIView = { // lazy var to access self
-        
-        let containerView = UIView()
-        containerView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50)
-        containerView.backgroundColor = UIColor.white
-        
-        let uploadImageView = UIImageView()
-        uploadImageView.image = UIImage(named: "upload_image_icon")
-        uploadImageView.translatesAutoresizingMaskIntoConstraints = false
-        //crucial for tap to work
-        uploadImageView.isUserInteractionEnabled = true
-        uploadImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleUploadTap)))
-        containerView.addSubview(uploadImageView)
-        
-        
-        
-        let sendButton = UIButton(type: .system)
-        sendButton.setTitle("Send", for: .normal)
-        sendButton.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(sendButton)
-        
-        //contraints
-        sendButton.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
-        sendButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        sendButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        sendButton.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
-        sendButton.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
-        
-        containerView.addSubview(self.inputTextField)
-        
-        // upload image view constraints
-        
-        uploadImageView.leftAnchor.constraint(equalTo: containerView.leftAnchor).isActive = true
-        uploadImageView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        
-        uploadImageView.widthAnchor.constraint(equalToConstant: 44).isActive = true
-        uploadImageView.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        
-        //constraints
-        self.inputTextField.leftAnchor.constraint(equalTo: uploadImageView.rightAnchor, constant: 8).isActive = true
-        self.inputTextField.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        self.inputTextField.rightAnchor.constraint(equalTo: sendButton.leftAnchor).isActive = true
-        self.inputTextField.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
-        
-        let separatorLineView = UIView()
-        separatorLineView.backgroundColor = UIColor(r: 220, g: 220, b: 220)
-        separatorLineView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(separatorLineView)
-        
-        //Separator Line View Contraints
-        separatorLineView.leftAnchor.constraint(equalTo: containerView.leftAnchor).isActive = true
-        separatorLineView.topAnchor.constraint(equalTo: containerView.topAnchor).isActive = true
-        separatorLineView.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
-        separatorLineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
-
-        return containerView
+    lazy var inputContainerView: ChatInputContainerView = { // lazy var to access self
+        let chatInputContainerView = ChatInputContainerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50))
+        chatInputContainerView.chatLogController = self
+        return chatInputContainerView
     }()
     
     override var inputAccessoryView: UIView? {
@@ -356,7 +298,6 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
            
         }
     }
-    
     
     override var canBecomeFirstResponder : Bool { // crucial for interactive keyboard and components to show
         return true
@@ -401,7 +342,6 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         }
     }
     
-    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
@@ -425,7 +365,6 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         //chatlogreference ep19
         cell.chatLogController = self
         
-        
         let message = messages[indexPath.item]
         cell.textView.text = message.text
         cell.message = message
@@ -447,9 +386,6 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
     }
     
     func setUpCell(message: Message, cell: ChatMessageCell) {
-        
-        
-        
         if let profileImageUrl = self.user?.profileImageUrl{ // user is partner
             cell.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
         }
@@ -493,8 +429,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin);
         
         return NSString(string: text).boundingRect(with: size, options: options, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 16)], context: nil)
-        
-        
+    
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -532,11 +467,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         return true
     }
     
-    // When Enter is pressed
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        handleSend()
-        return true
-    }
+
     func handleZoomOut(tapGesture: UITapGestureRecognizer) {
         print("Zoom out")
         if let zoomOutImageView = tapGesture.view{
