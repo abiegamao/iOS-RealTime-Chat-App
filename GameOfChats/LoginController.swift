@@ -82,10 +82,7 @@ class LoginController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
-    
-    
 
-    
     // MARK: Image Views
     lazy var profileImageView: UIImageView = {
         let imageView = UIImageView()
@@ -113,7 +110,6 @@ class LoginController: UIViewController {
     var nameTextFieldHeightAnchor: NSLayoutConstraint?
     var emailTextFieldHeightAnchor: NSLayoutConstraint?
     var passwordTextFieldHeightAnchor: NSLayoutConstraint?
-    
     
     // MARK: Set up Anchors/Contraints
     func setupLoginRegisterButton(){
@@ -170,11 +166,8 @@ class LoginController: UIViewController {
         //need x, y, width, height constraints
         emailTextField.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor, constant: 12).isActive = true
         emailTextField.topAnchor.constraint(equalTo: nameTextField.bottomAnchor).isActive = true
-        
         emailTextField.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
-        
         emailTextFieldHeightAnchor = emailTextField.heightAnchor.constraint(equalTo: inputsContainerView.heightAnchor, multiplier: 1/2)
-        
         emailTextFieldHeightAnchor?.isActive = true
         
         //need x, y, width, height constraints
@@ -218,8 +211,6 @@ class LoginController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle{
         return .lightContent
     }
-    
-    
 }
 
 // Custom UIColor Parameter calling (for your convenience

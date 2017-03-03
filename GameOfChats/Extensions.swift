@@ -15,7 +15,6 @@ let imageCache = NSCache<NSString, UIImage>()
 extension UIImageView {
     func loadImageUsingCacheWithUrlString(urlString: String) {
         //prevent flashing
-        
         self.image = nil
         
         //if image already in cache, load this
@@ -24,8 +23,7 @@ extension UIImageView {
             self.image = cachedImage
             return
         }
-        
-        
+
         // if new image is being downloaded
         let url = NSURL(string: urlString)
         let request = URLRequest(url: url as! URL)

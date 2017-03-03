@@ -46,7 +46,6 @@ extension LoginController: UIImagePickerControllerDelegate, UINavigationControll
         let picker = UIImagePickerController()
         picker.delegate = self
         picker.allowsEditing = true
-        
         present(picker, animated: true, completion: nil)
     }
     
@@ -54,7 +53,6 @@ extension LoginController: UIImagePickerControllerDelegate, UINavigationControll
         print(info)
         
         var selectedImageFromPicker: UIImage?
-        
         
         if let editedImage = info["UIImagePickerControllerEditedImage"] as? UIImage{
             selectedImageFromPicker = editedImage
@@ -67,8 +65,6 @@ extension LoginController: UIImagePickerControllerDelegate, UINavigationControll
             profileImageView.contentMode = .scaleAspectFill
             profileImageView.image = selectedImage
         }
-        
-
 
         dismiss(animated: true, completion: nil)
 
@@ -77,7 +73,6 @@ extension LoginController: UIImagePickerControllerDelegate, UINavigationControll
         print("ic cancelled image picker")
         dismiss(animated: true, completion: nil)
     }
-    
     
     // MARK: User Authentication
     func handleLoginRegister(){
@@ -178,15 +173,11 @@ extension LoginController: UIImagePickerControllerDelegate, UINavigationControll
             
         })
     }
-
-    
-           
     
     func registerUserIntoDatabaseWithUID(uid: String, values: [String : AnyObject]) {
         // Call Firebase Database to store new user
         let ref = FIRDatabase.database().reference() //(fromURL: "https://chatapp-c130d.firebaseio.com/") pwede hardcoded
         let userRef = ref.child("users").child(uid)
-        //
         
         userRef.updateChildValues(values, withCompletionBlock: { (error, ref) in
             if error != nil{

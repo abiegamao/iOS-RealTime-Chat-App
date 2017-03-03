@@ -11,7 +11,6 @@ import Firebase
 import MobileCoreServices
 import AVFoundation
 
-
 class ChatLogController: UICollectionViewController, UITextFieldDelegate,
 UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     
@@ -21,9 +20,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
          navigationItem.title = user?.name
         observeMessages(user: user)
         }
-        
-        
-    } // dapat ma optional
+    }
     
     var messages = [Message]()
     
@@ -58,13 +55,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
                 
             }, withCancel: nil)
         }, withCancel: nil)
-        
-        
-        
-        
-    } 
-    
-
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -79,37 +70,11 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         collectionView?.alwaysBounceVertical = true // draggable vertically
         collectionView?.backgroundColor = UIColor.white
         collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: cellID)
-        
-        //ep15
         collectionView?.keyboardDismissMode = .interactive
-/*
-        setUpInputComponents()*/
-        
         setUpKeyboardObservers()
 
 
     }
-    
-    
-    
-    //FOR KEYBOARD
-/*
-    lazy var inputContainerView: UIView = {
-        let containerView = UIView()
-        containerView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50)
-        containerView.backgroundColor = UIColor.white
-
-        
-        containerView.addSubview(self.inputTextField)
-        //x,y,w,h
-        self.inputTextField.leftAnchor.constraint(equalTo: containerView.leftAnchor, constant: 8).isActive = true
-        self.inputTextField.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        self.inputTextField.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
-        self.inputTextField.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
-        
-
-        return containerView
-    }()*/
 
     func handleUploadTap() {
         print("We tapped upload")
@@ -150,9 +115,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
                         let properties = ["imageUrl": imageUrl as AnyObject, "imageWidth": thumbnailImage.size.width as AnyObject, "imageHeight": thumbnailImage.size.height as AnyObject, "videoUrl": videoUrl as AnyObject ]
                         self.sendMessageWithProperties(properties: properties)
                     })
-
                 }
-
             }
         })
         // Progress
@@ -161,18 +124,9 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
                 self.navigationItem.title = String(computedUnitCount)
             }
         }
-        
         uploadTask.observe(.success) { (snapshot) in
             self.navigationItem.title = self.user?.name
         }
-    }
-    
-    // --- For Videos
-    func sendMessageWithVideoUrl(imageUrl: String, image: UIImage) {
-       // let thumbnailImage = self.thumbnailImageForFileUrl(url: imageUrl)
-
-
-        
     }
     
     func thumbnailImageForFileUrl(url: URL) -> UIImage? {
@@ -184,11 +138,8 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         }catch let err{
             print(err)
         }
-        
-        
         return nil
     }
-    
     
     private func handleImageSelected(info: [String: Any]){
         // We selected an image        
@@ -207,8 +158,6 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
             
         }
     }
-    
-    
     
     func uploadToFirebaseStorage(image: UIImage, completion: @escaping (_ imageUrl: String) -> ()) {
         print("Upload to firebase")
@@ -229,8 +178,6 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
                // print(metadata?.downloadURL()?.absoluteString as Any)
             })
         }
-        
-
     }
     
     // --- For Text
@@ -239,14 +186,12 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
          self.sendMessageWithProperties(properties: properties)
     }
     
-    
     // --- For Images
     func sendMessageWithImageUrl(imageUrl: String, image: UIImage) {
         let properties = ["imageUrl": imageUrl as AnyObject, "imageWidth": image.size.width as AnyObject, "imageHeight": image.size.height as AnyObject]
         self.sendMessageWithProperties(properties: properties)
     }
     
-
     func sendMessageWithProperties(properties: [String: AnyObject]) {
         let ref = FIRDatabase.database().reference().child("messages")
         let childRef = ref.childByAutoId()
@@ -280,11 +225,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
             receipientUserMessagesRef.updateChildValues([messageId: 1])
             
         }
-
-        
     }
-    
-
 
     lazy var inputContainerView: ChatInputContainerView = { // lazy var to access self
         let chatInputContainerView = ChatInputContainerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50))
@@ -295,7 +236,6 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
     override var inputAccessoryView: UIView? {
         get {
             return inputContainerView
-           
         }
     }
     
@@ -306,9 +246,6 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
     // KEYBOARD METHODS
     func setUpKeyboardObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
-       /*
- NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)*/
-
     }
     func handleKeyboardDidShow() {
         // avoid crashing
@@ -344,14 +281,13 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
         NotificationCenter.default.removeObserver(self)
     }
+    
     // Method call when rotated
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         collectionView?.collectionViewLayout.invalidateLayout() // the fix to blend with my constraints
     }
-    
     
     var containerViewBottomLayout : NSLayoutConstraint?
  
@@ -381,7 +317,6 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         }
         // Play button only appears on videos
         cell.playButton.isHidden = message.videoUrl == nil
-
         return cell
     }
     
@@ -419,9 +354,7 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
             cell.messageImageView.isHidden = false
         }else{
             cell.messageImageView.isHidden = true
-            
         }
-        
     }
     
     func estimateFrameForText(text: String) -> CGRect { // for text block
@@ -429,12 +362,10 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin);
         
         return NSString(string: text).boundingRect(with: size, options: options, attributes: [NSFontAttributeName: UIFont.systemFont(ofSize: 16)], context: nil)
-    
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         var height:CGFloat = 80
-        
         
         let message = messages[indexPath.item]
         // get estimated text somehow
@@ -467,7 +398,6 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
         return true
     }
     
-
     func handleZoomOut(tapGesture: UITapGestureRecognizer) {
         print("Zoom out")
         if let zoomOutImageView = tapGesture.view{
@@ -530,8 +460,6 @@ UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigatio
             }
         }
         //end
-    
-
 }
  
 // fix for crashing in scrolling!!
@@ -542,9 +470,7 @@ extension UICollectionView {
             self.scrollToItem(at: IndexPath(row: self.numberOfItems(inSection: lastSection - 1), section: lastSection), at: .bottom, animated: true)
         } // we need this coz sometimes this doesnt load // net connection// abrupt change of vcs
         else if numberOfItems(inSection: 0) > 0 && self.numberOfSections == 1 {
-            
             self.scrollToItem(at: IndexPath(row: numberOfItems(inSection: 0)-1, section: 0), at: .bottom, animated: true)
-            
         }
     }
 }

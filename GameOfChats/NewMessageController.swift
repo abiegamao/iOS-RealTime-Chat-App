@@ -20,8 +20,6 @@ class NewMessageController:UITableViewController {
         self.navigationItem.title = "New Message"
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
         
-        
-        
         //register table cell
         tableView.register(UserCell.self, forCellReuseIdentifier: cellID)
         fetchUSer()
@@ -42,18 +40,13 @@ class NewMessageController:UITableViewController {
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                 }
-               
-                
             }
         }, withCancel: nil)
     }
     
-    
-    
     func handleCancel()  {
         print("Cancel")
         dismiss(animated: true, completion: nil)
-        
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -66,25 +59,20 @@ class NewMessageController:UITableViewController {
         let user = users[indexPath.row]
         cell?.textLabel?.text = user.name
         cell?.detailTextLabel?.text = user.email
-        
 
-        
         if let profileImageUrl = user.profileImageUrl{
             cell?.profileImageView.loadImageUsingCacheWithUrlString(urlString: profileImageUrl)
         }
         
         return cell!
     }
-
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 72
     }
 
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         dismiss(animated: true, completion: nil)
-        
         print("dismiss completed")
         let user = self.users[indexPath.row]
         self.messagesController?.showChatController(user: user)

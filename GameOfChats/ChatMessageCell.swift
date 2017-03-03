@@ -36,7 +36,6 @@ class ChatMessageCell: UICollectionViewCell {
     var playerLayer : AVPlayerLayer?
     var player: AVPlayer?
     
-    
     func handlePlayVideo(){
         print("Playing!")
         if let videoUrlString = message?.videoUrl, let url = URL(string: videoUrlString){
@@ -59,9 +58,7 @@ class ChatMessageCell: UICollectionViewCell {
         activityIndicatorView.stopAnimating()
         
     }
-    
-    
-    
+
     let textView : UITextView = {
         let tv = UITextView()
         tv.text = "Sample Text"
@@ -82,7 +79,6 @@ class ChatMessageCell: UICollectionViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 16
         view.layer.masksToBounds = true
-    
         return view
     }()
     
@@ -106,8 +102,8 @@ class ChatMessageCell: UICollectionViewCell {
         imageView.isUserInteractionEnabled = true
         imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleZoomTap)))
         return imageView
-    
     }()
+    
     func handleZoomTap(tapGesture: UITapGestureRecognizer) {
         print("image tapped")
         if message?.videoUrl != nil {
@@ -116,14 +112,13 @@ class ChatMessageCell: UICollectionViewCell {
         if let imageView = tapGesture.view as? UIImageView{
             chatLogController?.performZoomIn(startingImageView: imageView) 
         }
-        
     }
+    
     var bubbleWidthAnchor : NSLayoutConstraint?
     var bubbleRightAnchor : NSLayoutConstraint?
     var bubbleLeftAnchor : NSLayoutConstraint?
     var imageViewRightAnchor : NSLayoutConstraint?
     var imageViewLeftAnchor : NSLayoutConstraint?
-    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -156,13 +151,9 @@ class ChatMessageCell: UICollectionViewCell {
         activityIndicatorView.widthAnchor.constraint(equalToConstant: 50).isActive = true
         activityIndicatorView.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        
-        
         //textview constraints
-        //textView.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
         textView.leftAnchor.constraint(equalTo: self.bubbleView.leftAnchor, constant: 8).isActive = true
         textView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-        //textView.widthAnchor.constraint(equalToConstant: 200).isActive = true
         textView.rightAnchor.constraint(equalTo: self.bubbleView.rightAnchor).isActive = true
         textView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
         
@@ -178,7 +169,6 @@ class ChatMessageCell: UICollectionViewCell {
         profileImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
         profileImageView.widthAnchor.constraint(equalToConstant: 32).isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 32).isActive = true
-
         
         //bubbleView constraints
         bubbleRightAnchor = bubbleView.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -8)
@@ -192,7 +182,6 @@ class ChatMessageCell: UICollectionViewCell {
         self.bubbleWidthAnchor?.isActive = true
         bubbleView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
     }
-    
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

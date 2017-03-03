@@ -15,6 +15,7 @@ class UserCell: UITableViewCell {
         df.dateFormat = "hh:mm:ss a"
         return df
     }()
+    
     var message: Message? {
         didSet{
             setUpNameAndProfileImage()
@@ -24,23 +25,12 @@ class UserCell: UITableViewCell {
 
                 self.timeLabel.text = dateFormatter.string(from: timeStampDate)// YYYY-MM-DD HH:MM:SS
             }
-            
-
         }
     }
     
     func setUpNameAndProfileImage() {
         self.profileImageView.image = nil
-        
-       /*
-            }
 
-        if  currentUser == message?.toID && currentUser == message?.fromID{
-            chatPartnerId = currentUser
-        }
-*/
-    
-        
         if let id = message?.chatPartnerId() {
             let ref = FIRDatabase.database().reference().child("users").child(id)
             
@@ -55,7 +45,6 @@ class UserCell: UITableViewCell {
                 }
             }, withCancel: nil)
         }
-        
     }
     
     let profileImageView : UIImageView  = {
@@ -70,7 +59,6 @@ class UserCell: UITableViewCell {
     
     let timeLabel : UILabel = {
         let label = UILabel()
-        //label.text = "HH:MM:SS"
         label.font = UIFont.systemFont(ofSize: 12)
         label.textColor = UIColor.darkGray
         label.translatesAutoresizingMaskIntoConstraints = false

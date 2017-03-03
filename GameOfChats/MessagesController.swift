@@ -19,15 +19,9 @@ class MessagesViewController: UITableViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "new_message_icon"), style: .plain, target: self, action: #selector(handleNewMessage))
-        
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(handleLogout))
         checkIfUserIsLoggedIn()
-        
-       // navigationItem.title = ""
-        
         tableView.register(UserCell.self, forCellReuseIdentifier: cellID)
-       // observeMessages()
-       // observeUserMessages()
        //Enable delete
        tableView.allowsMultipleSelectionDuringEditing = true
     }
@@ -57,9 +51,7 @@ class MessagesViewController: UITableViewController {
             })
         }
     }
-    
-    
-    
+
     func observeUserMessages() {
         
         guard let uid = FIRAuth.auth()?.currentUser?.uid else{
@@ -72,7 +64,7 @@ class MessagesViewController: UITableViewController {
             
           let userId = snapshot.key // got from there ^^ messages exclusive to current user
             
-          // ep 16
+          // 16
           ref.child(userId).observe(.childAdded, with: { (snapshot) in
             print(snapshot)
             let messageId = snapshot.key
@@ -86,8 +78,6 @@ class MessagesViewController: UITableViewController {
             self.messagesDictionary.removeValue(forKey: snapshot.key)
             self.attemptReloadOfTable()
         }, withCancel: nil)
-        
-        
     }
     
     private func fetchMessageWith(messageId: String){
@@ -151,7 +141,6 @@ class MessagesViewController: UITableViewController {
         return 72
     }
     
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         let message = messages[indexPath.row]
@@ -166,15 +155,12 @@ class MessagesViewController: UITableViewController {
             guard let dictionary = snapshot.value as? [String: AnyObject] else{
                 return
             }
-            
                 let user = User()
                 user.id = chatPartnerId
                 user.setValuesForKeys(dictionary)
                 self.showChatController(user: user)
             
         }, withCancel: nil)
-    
-        //showChatController(user: <#T##User#>)
     }
     
     func handleNewMessage() {
@@ -256,11 +242,7 @@ class MessagesViewController: UITableViewController {
         //extendable
         containerView.centerXAnchor.constraint(equalTo: titleView.centerXAnchor).isActive = true
         containerView.centerYAnchor.constraint(equalTo: titleView.centerYAnchor).isActive = true
-        
-        
         titleView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showChatController)))
-        
-        
         self.navigationItem.titleView = titleView
         
     }
@@ -271,8 +253,7 @@ class MessagesViewController: UITableViewController {
         navigationController?.pushViewController(chatLogController, animated: true)
     
     }
-    
-    
+
     func handleLogout(){
         do {
             try FIRAuth.auth()?.signOut()
@@ -291,7 +272,5 @@ class MessagesViewController: UITableViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-
 }
 
